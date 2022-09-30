@@ -1,0 +1,145 @@
+# ----------------------------------------------------------------------------
+# Folders
+
+# the folder where the scripts of artracks are stored
+scripts_folder: '/path/to/artracks/scripts/'
+
+# the folders where your IVT data is stored
+# when using your own data, filenames have to be "{year}.nc"
+# vertical integral of eastward water vapour flux
+data_folder_e: '/path/to/ERA5/vertical_integral_of_eastward_water_vapour_flux/'
+
+# vertical integral of northward water vapour flux
+data_folder_n: '/path/to/ERA5/vertical_integral_of_northward_water_vapour_flux/'
+
+# the folder where the output is stored
+output_folder: '/path/to/artracks/output/'
+
+# ----------------------------------------------------------------------------
+# Years to process
+
+year_start: 1979  # inclusive
+year_end: 2019  # inclusive
+
+
+# ----------------------------------------------------------------------------
+# Regridding
+
+# do regridding?
+# currently, setting this to False will not work.
+# note: 0.25° x 0.25° x 1h resolution fails because of memory error in
+#       "03_ipart_ar_tracking_thr_multifile.py" even with 1TB of RAM
+do_regridding: True  # either "True" or "False"
+
+# spatial resolution in degrees latitude/longitude
+spatial_resolution: 0.75  # must be larger than resolution of input data
+
+# temporal resolution in hours
+temporal_resolution: 6  # must be larger than resolution of input data
+
+
+# ----------------------------------------------------------------------------
+# Top-hat by Reconstruction (THR) computation on IVT data, see
+# https://ipart.readthedocs.io/en/latest/Compute-THR.html
+# for details on the parameters below
+
+# the THR kernel, a list of ints, specifying the shape of the kernel
+# (aka structuring element) during the grey erosion process
+kernel: [16, 6, 6]  # recommended for 0.75° spatial and 6h temporal resolution
+
+# shift the data along the x-dimension 
+shift_lon: 80  # 80 degrees so the Pacific and Atlantic oceans are centered
+
+
+# ----------------------------------------------------------------------------
+# Detect AR appearances from THR output, see
+# https://ipart.readthedocs.io/en/latest/Detect-ARs.html
+# for details on the parameters below
+
+# kg/m/s, define AR candidates as regions >= than this anomalous ivt.
+# If None is given, compute a threshold based on anomalous ivt data. See
+# the docstring of ipart.AR_detector.determineThresLow() for details.
+thres_low: 1
+
+# km^2, drop AR candidates smaller than this area.
+min_area: 500000.
+
+# km^2, drop AR candidates larger than this area.
+max_area: 18000000.
+
+# float, min length/width ratio.
+min_LW: 2
+
+# degree, exclude systems whose centroids are lower than this latitude.
+# NOTE this is the absolute latitude for both NH and SH. For SH, systems
+# with centroid latitude north of -20 will be excluded.
+min_lat: 20
+
+# degree, exclude systems whose centroids are higher than this latitude.
+# NOTE this is the absolute latitude for both NH and SH. For SH, systems
+# with centroid latitude south of -80 will be excluded.
+max_lat: 80
+
+# km, ARs shorter than this length is treated as relaxed.
+min_length: 2000
+
+# km, ARs shorter than this length is discarded.
+min_length_hard: 1500
+
+# degree lat/lon, error when simplifying axis using rdp algorithm.
+rdp_thres: 2
+
+# Remove small holes in AR contour. Number of grids as radius to fill small
+# holes in AR contour. Must be either an "int" or "null".
+fill_radius: null
+
+# do peak partition or not, used to separate systems that are merged
+# together with an outer contour.
+single_dome: False
+
+# max prominence/height ratio of a local peak. Only used when single_dome=True
+max_ph_ratio: 0.7
+
+# minimal proportion of flux component in a direction to total flux to
+# allow edge building in that direction
+edge_eps: 0.4
+
+# bool, if True, treat the data as zonally cyclic (e.g. entire hemisphere
+# or global). ARs covering regions across the longitude bounds will be
+# correctly treated as one. If your data is not zonally cyclic, or a zonal
+# shift of the data can put the domain of interest to the center, consider
+# doing the shift and setting this to False, as it will save computations.
+zonal_cyclic: True
+
+
+# ----------------------------------------------------------------------------
+# Track ARs at individual time steps to form tracks, see
+# https://ipart.readthedocs.io/en/latest/Track-ARs.html
+# for details on the parameters below
+
+# Int, hours, gap allowed to link 2 records. Should be the time resolution of
+# the data.
+TIME_GAP_ALLOW: 6
+
+# tracking scheme. 'simple': all tracks are simple paths.
+# 'full': use the network scheme, tracks are connected by their joint points.
+TRACK_SCHEME: 'simple'
+
+# int, max Hausdorff distance in km to define a neighborhood relationship
+MAX_DIST_ALLOW: 1200
+
+# whether to filter AR tracks based on MIN_DURATION/MIN_NONRELAX (see below)
+do_filter_tracks: False
+
+# int, min duration in hrs to keep a track.
+MIN_DURATION: 24  # only has an effect if "do_filter_tracks" is True
+
+# int, min number of non-relaxed records in a track to keep a track.
+MIN_NONRELAX: 1  # only has an effect if "do_filter_tracks" is True
+
+
+# ----------------------------------------------------------------------------
+# set continent priority for ARs falling land on multiple continents
+landfall_continent_priority: ['Europe', 'North America', 'Asia', 'Africa',
+                              'South America', 'Australia', 'Oceania',
+                              'Antarctica']
