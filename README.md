@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.edit_me.svg)](https://doi.org/10.5281/zenodo.edit_me)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7130642.svg)](https://doi.org/10.5281/zenodo.7130642)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7018725.svg)](https://doi.org/10.5281/zenodo.7018725)
 
 # ARtracks - a Global Atmospheric River Catalogue Based on ERA5 and IPART
